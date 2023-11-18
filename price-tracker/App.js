@@ -1,6 +1,13 @@
 import { FlatList, StyleSheet, Text, View, SafeAreaView } from "react-native";
 import ListItem from "./components/ListItem";
 import SAMPLE_DATA from "./assets/data/sampleData";
+import { useRef, useMemo, useState } from "react";
+import {
+  BottomSheetModal,
+  BottomSheetModalProvider,
+} from '@gorhom/bottom-sheet';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import Chart from "./components/Chart";
 
 const ListHeader = () => (
   <>
@@ -12,7 +19,20 @@ const ListHeader = () => (
 )
 
 export default function App() {
+
+    const bottomSheetModalRef = useRef(null);
+    const snapPoints = useMemo(() => ['50%'], []);
+    const [selectedCoin, setSelectedCoin] = useState(null);
+    const openMondal = (item) => {
+      setSelectedCoin(item);
+      bottomSheetModalRef.current?.present();
+    };
+
+
+
   return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
+    <BottomSheetModalProvider>
     <SafeAreaView style={styles.container}>
       <FlatList
         ListHeaderComponent={<ListHeader />}
@@ -20,6 +40,7 @@ export default function App() {
         data={SAMPLE_DATA}
         renderItem={({ item }) => (
           <ListItem
+            onPress={() => openMondal(item)}
             name={item.name}
             symbol={item.symbol}
             price={item.current_price}
@@ -29,6 +50,29 @@ export default function App() {
         )}
       />
     </SafeAreaView>
+
+ 
+    <BottomSheetModal
+          ref={bottomSheetModalRef}
+          index={0}
+          snapPoints={snapPoints}
+          style={styles.bottomSheet}
+      
+        >
+          {selectedCoin ?
+          (<Chart 
+          name={selectedCoin.name}
+          symbol={selectedCoin.symbol}
+          price={selectedCoin.current_price}
+          priceChangePercent={selectedCoin.price_change_percentage_7d_in_currency}
+          logoUrl={selectedCoin.image}
+          sparkline={selectedCoin.sparkline_in_7d.price}
+          /> ) : null
+          }
+        </BottomSheetModal>
+   
+    </BottomSheetModalProvider>
+    </GestureHandlerRootView>
   );
 }
 
@@ -52,4 +96,14 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "blue",
   },
+  bottomSheet:{
+    shadowColor: "gray",
+    shadowOffset: {
+      with:0,
+      height: -3,
+    },
+    shadowOpacity:0.50,
+    shadowRadius:5,
+    elevation: 5,
+  }
 });

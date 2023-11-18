@@ -1,10 +1,10 @@
 import { StyleSheet, Text, TouchableOpacity, View, Image } from "react-native";
 import React from "react";
 
-const ListItem = ({ name, symbol, price, priceChangePercent, logoUrl }) => {
-    const priceChangeColor  = priceChangePercent > 0  ? "green" :'red';
+const ListItem = ({ name, symbol, price, priceChangePercent, logoUrl, onPress }) => {
+  const priceChangeColor = priceChangePercent > 0 ? "green" : "red";
   return (
-    <TouchableOpacity>
+    <TouchableOpacity onPress={onPress}>
       <View style={styles.itemListWrapper}>
         <View style={styles.itemIconContainer}>
           <Image
@@ -21,8 +21,12 @@ const ListItem = ({ name, symbol, price, priceChangePercent, logoUrl }) => {
 
         {/**  */}
         <View style={styles.itemDetails}>
-          <Text style={styles.title}>${price.toLocaleString('en-US', {currency:"USD"})}</Text>
-          <Text style={[styles.subtitle, {color:priceChangeColor}]}>{priceChangePercent.toFixed(2)}%</Text>
+          <Text style={styles.title}>
+            ${price.toLocaleString("en-US", { currency: "USD" })}
+          </Text>
+          <Text style={[styles.subtitle, { color: priceChangeColor }]}>
+            {priceChangePercent.toFixed(2)}%
+          </Text>
         </View>
       </View>
     </TouchableOpacity>
