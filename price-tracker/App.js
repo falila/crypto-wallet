@@ -5,9 +5,10 @@ import { useRef, useMemo, useState } from "react";
 import {
   BottomSheetModal,
   BottomSheetModalProvider,
-} from '@gorhom/bottom-sheet';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
+} from "@gorhom/bottom-sheet";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import Chart from "./components/Chart";
+import { getMarketData } from "./services/cryptoService";
 
 const ListHeader = () => (
   <>
@@ -16,62 +17,69 @@ const ListHeader = () => (
     </View>
     <View style={styles.ligne}></View>
   </>
-)
+);
 
 export default function App() {
+  const bottomSheetModalRef = useRef(null);
+  const snapPoints = useMemo(() => ["50%"], []);
+  const [data, setData] = useState([]);
+  const [selectedCoin, setSelectedCoin] = useState(null);
 
-    const bottomSheetModalRef = useRef(null);
-    const snapPoints = useMemo(() => ['50%'], []);
-    const [selectedCoin, setSelectedCoin] = useState(null);
-    const openMondal = (item) => {
-      setSelectedCoin(item);
-      bottomSheetModalRef.current?.present();
+  useEffect(() => {
+    const fetchMarketData = async () => {
+      const marketData = await getMarketData();
+      setData(marketData);
     };
 
+    fetchMarketData();
+  }, []);
 
+  const openMondal = (item) => {
+    setSelectedCoin(item);
+    bottomSheetModalRef.current?.present();
+  };
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-    <BottomSheetModalProvider>
-    <SafeAreaView style={styles.container}>
-      <FlatList
-        ListHeaderComponent={<ListHeader />}
-        keyExtractor={(item) => item.id}
-        data={SAMPLE_DATA}
-        renderItem={({ item }) => (
-          <ListItem
-            onPress={() => openMondal(item)}
-            name={item.name}
-            symbol={item.symbol}
-            price={item.current_price}
-            priceChangePercent={item.price_change_percentage_7d_in_currency}
-            logoUrl={item.image}
+      <BottomSheetModalProvider>
+        <SafeAreaView style={styles.container}>
+          <FlatList
+            ListHeaderComponent={<ListHeader />}
+            keyExtractor={(item) => item.id}
+            data={SAMPLE_DATA}
+            renderItem={({ item }) => (
+              <ListItem
+                onPress={() => openMondal(item)}
+                name={item.name}
+                symbol={item.symbol}
+                price={item.current_price}
+                priceChangePercent={item.price_change_percentage_7d_in_currency}
+                logoUrl={item.image}
+              />
+            )}
           />
-        )}
-      />
-    </SafeAreaView>
+        </SafeAreaView>
 
- 
-    <BottomSheetModal
+        <BottomSheetModal
           ref={bottomSheetModalRef}
           index={0}
           snapPoints={snapPoints}
           style={styles.bottomSheet}
-      
         >
-          {selectedCoin ?
-          (<Chart 
-          name={selectedCoin.name}
-          symbol={selectedCoin.symbol}
-          price={selectedCoin.current_price}
-          priceChangePercent={selectedCoin.price_change_percentage_7d_in_currency}
-          logoUrl={selectedCoin.image}
-          sparkline={selectedCoin.sparkline_in_7d.price}
-          /> ) : null
-          }
+          {selectedCoin ? (
+            <Chart
+              name={selectedCoin.name}
+              symbol={selectedCoin.symbol}
+              price={selectedCoin.current_price}
+              priceChangePercent={
+                selectedCoin.price_change_percentage_7d_in_currency
+              }
+              logoUrl={selectedCoin.image}
+              sparkline={selectedCoin.sparkline_in_7d.price}
+            />
+          ) : null}
         </BottomSheetModal>
-   
-    </BottomSheetModalProvider>
+      </BottomSheetModalProvider>
     </GestureHandlerRootView>
   );
 }
@@ -96,14 +104,14 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "blue",
   },
-  bottomSheet:{
+  bottomSheet: {
     shadowColor: "gray",
     shadowOffset: {
-      with:0,
+      with: 0,
       height: -3,
     },
-    shadowOpacity:0.50,
-    shadowRadius:5,
+    shadowOpacity: 0.5,
+    shadowRadius: 5,
     elevation: 5,
-  }
+  },
 });
