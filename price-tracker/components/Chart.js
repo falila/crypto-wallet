@@ -1,10 +1,11 @@
-import { StyleSheet, Text, View, Image } from "react-native";
+import { StyleSheet, Text, View, Image, Dimensions } from "react-native";
 import React from "react";
 
 import {
   ChartDot,
   ChartPathProvider,
   ChartPath,
+  ChartYLabel
 } from "@rainbow-me/animated-charts";
 import { useSharedValue } from "react-native-reanimated";
 const { width: SIZE } = Dimensions.get("window");
